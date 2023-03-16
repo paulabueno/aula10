@@ -1,50 +1,38 @@
-import React from 'react';
-import UserList from './componentes/list/userList';
-import css from './App.css';
+
+import { useEffect, useState } from 'react';
+import './App.css';
+import { List } from './components';
 
 function App() {
-  const users = [
-    {
-      id: 1,
-      name: 'João',
-      phone: '11 99999-9999',
-    },
-    {
-      id: 3,
-      name: 'Elisa',
-      phone: '11 99999-8888',
+  const [items, setItems] = useState([]);
 
-    },
-    {
-      id: 4,
-      name: 'Luna',
-      phone: '11 99999-8888',
+  const loadDetails = (items) => {
+    const promises = items.map((item) => {
+      return fetch(item.url).then((response) => response.json())
+    });
+    Promise.all(promises)
+      .then((data) => {
+        setItems(data);
+      });
+  }
 
-    },
-    {
-      id: 5,
-      name: 'Anne',
-      phone: '11 99999-8888',
-
-    },
-    {
-      id: 6,
-      name: 'João',
-      phone: '11 99999-8888',
-
-    },
-    {
-      id: 7,
-      name: 'Fabiana',
-      phone: '11 99999-8888',
-
-    },
-  ];
+  useEffect(() => {
+    fetch('https://pokeapi.co/api/v2/pokemon?limit=20')
+      .then((response) => {
+          return response.json();
+      })
+      .then((data) => {
+        const { results } = data;
+        loadDetails(results);
+      })
+      .catch(() => {
+        console.error('Error');
+      });
+  }, []);
 
   return (
-    <div className='UserList'>
-      <h2>Lista de contato</h2>
-      <UserList users={users} />
+    <div>
+      <List items={items} />
     </div>
   );
 }
